@@ -15,12 +15,48 @@ class HomeScreen extends StatelessWidget {
             appBar: AppBar(
               title: Text(homeScreenController.getCurrentTitle()),
             ),
-            body: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
-              child: SelectableText(
-                homeScreenController.JobList.toString(),
-              ),
-            ),
+            body: ListView.separated(
+                itemBuilder: (BuildContext context, int index) {
+                  return Theme(
+                    data:
+                        ThemeData().copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      title: Text(homeScreenController.JobList[index].title),
+                      childrenPadding: EdgeInsets.symmetric(horizontal: 16),
+                      collapsedTextColor: Colors.black,
+                      textColor: Colors.black,
+                      backgroundColor: Colors.transparent,
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(homeScreenController
+                              .JobList[index].shortDescription),
+                        ),
+                        Divider(),
+                        Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                                homeScreenController.JobList[index].location)),
+                        Divider(),
+                        Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(homeScreenController
+                                .JobList[index].employmentType)),
+                        Divider(),
+                        Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                                homeScreenController.JobList[index].email)),
+                        SizedBox(
+                          height: 20,
+                        )
+                      ],
+                    ),
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) =>
+                    const Divider(height: 1),
+                itemCount: homeScreenController.JobList.length),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
                 homeScreenController.switchSelectedSchool();

@@ -48,7 +48,7 @@ class JobDataController {
           deadline: data['deadline'],
           email: data['email'],
           employmentType: data['employmentType'],
-          location: data['employmentType'],
+          location: data['location'],
           shortDescription: data['shortDescription'],
           files: files,
         ));
