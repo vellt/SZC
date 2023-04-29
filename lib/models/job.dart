@@ -72,7 +72,7 @@ class Job {
     return '\n\t{'
         '\n\t\tid: $_id'
         '\n\t\ttitle: $_title'
-        '\n\t\tdate: ${date.year}-${date.month}-${date.day}'
+        '\n\t\tdate: ${date.year}. ${date.month}. ${date.day}.'
         '\n\t\tpublishedAt: $_publishedAt'
         '\n\t\tcreatedAt: $_createdAt'
         '\n\t\tupdatedAt: $_updatedAt'
