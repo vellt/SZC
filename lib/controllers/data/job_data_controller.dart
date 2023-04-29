@@ -21,7 +21,7 @@ class JobDataController {
 
   Future<List<Job>> getJobsOfSchool() async {
     List<Job> temp = [];
-    String carrierRoute = _schools[_indexOfselectedSchool].carrierRoute;
+    String carrierRoute = _schools[_indexOfselectedSchool].careerRoute;
     NetworkHelper networkHelper = NetworkHelper(Uri.parse(carrierRoute));
 
     var response = await networkHelper.getRequest();
