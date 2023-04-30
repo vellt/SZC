@@ -20,7 +20,7 @@ class HomeScreen extends StatelessWidget {
               title: Text(homeScreenController.getCurrentTitle()),
             ),
             body: ListView.separated(
-                physics: NeverScrollableScrollPhysics(),
+                physics: BouncingScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
                   return Builder(builder: (context) {
                     print(homeScreenController.closeAll.value);
@@ -129,7 +129,8 @@ class HomeScreen extends StatelessWidget {
                           Text(
                             homeScreenController
                                 .jobList[index].shortDescription,
-                            style: TextStyle(fontWeight: FontWeight.w300),
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w300),
                           ),
                           SizedBox(
                             height: 35,
