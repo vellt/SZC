@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:szc/controllers/screen/home_screen_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatelessWidget {
   final homeScreenController = Get.put(HomeScreenController());
@@ -17,7 +18,8 @@ class HomeScreen extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Color(0xFF26BDD0),
-              title: Text(homeScreenController.getCurrentTitle()),
+              title: Text(
+                  "${homeScreenController.getCurrentTitle()} (${homeScreenController.jobList.length})"),
             ),
             body: ListView.separated(
                 physics: BouncingScrollPhysics(),
@@ -34,15 +36,15 @@ class HomeScreen extends StatelessWidget {
                           homeScreenController.extendsList[index] = value;
                           homeScreenController.update();
                         },
-                        tilePadding: EdgeInsets.only(
-                            top: 5, left: 16, right: 16, bottom: 10),
+                        tilePadding:
+                            EdgeInsets.only(top: 5, left: 16, right: 16),
                         title: ListTile(
                             contentPadding: EdgeInsets.zero,
                             title: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 SizedBox(
-                                  height: 5,
+                                  height: 2,
                                 ),
                                 Text(homeScreenController.jobList[index].title,
                                     maxLines: (homeScreenController
@@ -64,13 +66,14 @@ class HomeScreen extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis),
                               ],
                             ),
+                            minVerticalPadding: 10,
                             trailing: SizedBox(
                               height: 20,
                               width: 20,
                               child: IconButton(
-                                onPressed: () {
-                                  print(homeScreenController
-                                      .jobList[index].website);
+                                onPressed: () async {
+                                  await launchUrl(Uri.parse(homeScreenController
+                                      .jobList[index].website));
                                 },
                                 icon: Icon(
                                   Icons.language,
@@ -139,7 +142,27 @@ class HomeScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               TextButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    String email = Uri.encodeComponent(
+                                        homeScreenController
+                                            .jobList[index].email);
+                                    String subject = Uri.encodeComponent(
+                                        "[Jelentkezés] - ${homeScreenController.jobList[index].title}");
+                                    String body = Uri.encodeComponent(
+                                        "Meghirdetett pozíció: ${homeScreenController.jobList[index].title}"
+                                        "\nNév:"
+                                        "\nTelefon:"
+                                        "\nLegkorábbi kezdés időpontja: "
+                                        "\nÜzenet: ");
+                                    print(subject); //output: Hello%20Flutter
+                                    Uri mail = Uri.parse(
+                                        "mailto:$email?subject=$subject&body=$body");
+                                    if (await launchUrl(mail)) {
+                                      print("email app opened");
+                                    } else {
+                                      print("email app is not opened");
+                                    }
+                                  },
                                   child: Column(children: [
                                     Icon(
                                       CupertinoIcons.mail,
@@ -158,7 +181,14 @@ class HomeScreen extends StatelessWidget {
                                     )
                                   ])),
                               TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Get.bottomSheet(Container(
+                                      color: Colors.white,
+                                      height: 200,
+                                      child: Text(homeScreenController
+                                          .jobList[index].location),
+                                    ));
+                                  },
                                   child: Column(children: [
                                     Icon(
                                       CupertinoIcons.map,
@@ -177,7 +207,13 @@ class HomeScreen extends StatelessWidget {
                                     )
                                   ])),
                               TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Get.bottomSheet(Container(
+                                      color: Colors.white,
+                                      height: 200,
+                                      child: Text("Csatolt fájlok"),
+                                    ));
+                                  },
                                   child: Column(children: [
                                     Icon(
                                       CupertinoIcons.folder_open,

@@ -39,6 +39,7 @@ dependencies:
   get: 4.5.1
   http: ^0.13.5
   intl: ^0.18.1
+  url_launcher: ^6.1.5
 
 
 dev_dependencies:
