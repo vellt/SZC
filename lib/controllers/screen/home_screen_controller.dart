@@ -4,24 +4,17 @@ import 'package:szc/models/job.dart';
 import 'package:szc/models/school.dart';
 
 class HomeScreenController extends GetxController {
-  JobDataController _jobDataController = JobDataController([
-    School(
-      "DSZC",
-      "https://www.dszc.hu/_next/data/v-WydHyHx525vK02lrDwf/karrier.json",
-      "https://cms.debreceni.szc.edir.hu",
-    ),
-    School(
-      "berettyoujfaluiszc",
-      "https://berettyoujfaluiszc.hu/_next/data/r1JCPBEcCQVOGpyX5HtPz/karrier.json",
-      "https://berettyoujfalui-szc.cms.szc.edir.hu",
-    ),
-  ]);
+  JobDataController _jobDataController = JobDataController();
 
-  List<Job> _JobList = [];
+  List<Job> _jobList = [];
+
+  List<bool> extendsList = [];
+
+  var closeAll = false.obs;
 
   int changeSelectedSchool(int newIndex) {
-    if (newIndex != _jobDataController.indexOfselectedSchool) {
-      _jobDataController.indexOfselectedSchool = newIndex;
+    if (newIndex != _jobDataController.selectedSchoolIndex) {
+      _jobDataController.selectedSchoolIndex = newIndex;
       _fetchJobs();
       update();
     }
@@ -29,38 +22,59 @@ class HomeScreenController extends GetxController {
   }
 
   String getCurrentTitle() {
-    return _jobDataController.getSelectedSchoolName();
+    return _jobDataController.currentSchool()?.name ?? "";
   }
 
   int switchSelectedSchool() {
-    if (_jobDataController.indexOfselectedSchool == 0) {
-      _jobDataController.indexOfselectedSchool = 1;
-    } else if (_jobDataController.indexOfselectedSchool == 1) {
-      _jobDataController.indexOfselectedSchool = 0;
+    if (_jobDataController.selectedSchoolIndex == 0) {
+      _jobDataController.selectedSchoolIndex = 1;
+    } else if (_jobDataController.selectedSchoolIndex == 1) {
+      _jobDataController.selectedSchoolIndex = 0;
     }
     _fetchJobs();
+
     update();
-    return _jobDataController.indexOfselectedSchool;
+    return _jobDataController.selectedSchoolIndex;
   }
 
-  List<Job> get JobList => _JobList;
+  List<Job> get jobList => _jobList;
 
   void _fetchJobs() async {
     try {
-      _JobList = await _jobDataController.getJobsOfSchool();
-      print(_JobList);
+      _jobList = [];
+      _jobList = await _jobDataController.getJobsOfSchool();
+      extendsList = [];
+      extendsList.assignAll(List.filled(_jobList.length, false));
+      print(extendsList.toString());
     } catch (e) {
       print('Hiba történt az adatok betöltése során: $e');
     } finally {
       //isLoading.value = false; // Betöltés befejezése
+      update();
     }
-    update();
   }
 
   @override
   void onInit() {
     super.onInit();
+    _jobDataController.addSchool(
+      School(
+        name: "Debreceni SZC",
+        schoolDomainAddress: "https://www.dszc.hu",
+        careerRouteOfSchoolDomainAddress:
+            "/_next/data/v-WydHyHx525vK02lrDwf/karrier.json",
+        mediaDomainAddress: "https://cms.debreceni.szc.edir.hu",
+      ),
+    );
+    _jobDataController.addSchool(
+      School(
+        name: "Berettyoujfalui SZC",
+        schoolDomainAddress: "https://berettyoujfaluiszc.hu",
+        careerRouteOfSchoolDomainAddress:
+            "/_next/data/r1JCPBEcCQVOGpyX5HtPz/karrier.json",
+        mediaDomainAddress: "https://berettyoujfalui-szc.cms.szc.edir.hu",
+      ),
+    );
     _fetchJobs();
-    changeSelectedSchool(1);
   }
 }
