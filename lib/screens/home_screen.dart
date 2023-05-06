@@ -1,11 +1,10 @@
-import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoder_buddy/geocoder_buddy.dart';
+
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:szc/controllers/screen/home_screen_controller.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:szc/utilities/func.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -88,25 +87,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                   height: 20,
                                   width: 20,
                                   child: IconButton(
-                                    onPressed: () async {
-                                      await launchUrl(Uri.parse(
-                                              homeScreenController
-                                                  .jobList[index].website))
-                                          .then((value) => (!value)
+                                    onPressed: () {
+                                      Func.openWebsite(homeScreenController
+                                              .jobList[index].website)
+                                          .then((value) => (!value.status)
                                               ? Get.snackbar(
-                                                  'Nem lehet megnyitni az oldalt',
-                                                  homeScreenController
-                                                      .jobList[index].website,
-                                                  snackPosition:
-                                                      SnackPosition.TOP,
-                                                  colorText: Colors.white,
+                                                  value.title,
+                                                  value.message,
+                                                  colorText:
+                                                      value.foregroundColor,
                                                   borderRadius: 10,
                                                   backgroundColor:
-                                                      Colors.redAccent,
+                                                      value.backgroundColor,
                                                   icon: Icon(
                                                     Icons.language,
                                                     size: 25,
-                                                    color: Colors.white,
+                                                    color:
+                                                        value.foregroundColor,
                                                   ),
                                                 )
                                               : null);
@@ -182,29 +179,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                     MainAxisAlignment.spaceAround,
                                 children: [
                                   TextButton(
-                                      onPressed: () async {
-                                        String email = Uri.encodeComponent(
-                                            homeScreenController
-                                                .jobList[index].email);
-                                        String subject = Uri.encodeComponent(
-                                            "[Jelentkezés] - ${homeScreenController.jobList[index].title}");
-                                        String body = Uri.encodeComponent(
-                                            "Meghirdetett pozíció: ${homeScreenController.jobList[index].title}"
-                                            "\nNév:"
-                                            "\nTelefon:"
-                                            "\nLegkorábbi kezdés időpontja: "
-                                            "\nÜzenet: ");
-                                        print(
-                                            subject); //output: Hello%20Flutter
-                                        Uri mail = Uri.parse(
-                                            "mailto:$email?subject=$subject&body=$body");
-                                        if (await launchUrl(mail,
-                                            mode: LaunchMode
-                                                .externalApplication)) {
-                                          print("email app opened");
-                                        } else {
-                                          print("email app is not opened");
-                                        }
+                                      onPressed: () {
+                                        Func.writeMail(
+                                                homeScreenController
+                                                    .jobList[index].email,
+                                                homeScreenController
+                                                    .jobList[index].title)
+                                            .then((value) => (!value.status)
+                                                ? Get.snackbar(
+                                                    value.title,
+                                                    value.message,
+                                                    backgroundColor:
+                                                        value.backgroundColor,
+                                                    colorText:
+                                                        value.foregroundColor,
+                                                    borderRadius: 10,
+                                                    icon: Icon(
+                                                      CupertinoIcons.map,
+                                                      color:
+                                                          value.foregroundColor,
+                                                    ),
+                                                  )
+                                                : null);
                                       },
                                       child: Column(children: [
                                         Icon(
@@ -284,35 +280,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               Color(0xFFD3D3D3),
                                                         ),
                                                         onPressed: () {
-                                                          FlutterClipboard.copy(
+                                                          Func.copyTextToTheClipBoard(
                                                                   homeScreenController
                                                                       .jobList[
                                                                           index]
                                                                       .location)
                                                               .then((value) =>
                                                                   Get.snackbar(
-                                                                    'A cím sikeresen másolva',
-                                                                    homeScreenController
-                                                                        .jobList[
-                                                                            index]
-                                                                        .location,
-                                                                    snackPosition:
-                                                                        SnackPosition
-                                                                            .TOP,
-                                                                    colorText:
-                                                                        Colors
-                                                                            .white,
+                                                                    value.title,
+                                                                    value
+                                                                        .message,
+                                                                    colorText: value
+                                                                        .foregroundColor,
                                                                     borderRadius:
                                                                         10,
                                                                     backgroundColor:
-                                                                        Colors
-                                                                            .greenAccent,
+                                                                        value
+                                                                            .backgroundColor,
                                                                     icon: Icon(
                                                                       CupertinoIcons
                                                                           .chevron_down_circle,
                                                                       size: 25,
-                                                                      color: Colors
-                                                                          .white,
+                                                                      color: value
+                                                                          .foregroundColor,
                                                                     ),
                                                                   ));
                                                         }),
@@ -346,54 +336,35 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         backgroundColor:
                                                             Color(0xFF26BDD0),
                                                       ),
-                                                      onPressed: () async {
-                                                        List<GBSearchData>
-                                                            data =
-                                                            await GeocoderBuddy.query(
+                                                      onPressed: () {
+                                                        Func.openMap(
                                                                 homeScreenController
                                                                     .jobList[
                                                                         index]
-                                                                    .location);
-
-                                                        if (data.length == 0) {
-                                                          print(
-                                                              "HIBA nem nyitható meg");
-                                                          Get.snackbar(
-                                                            "Nem sikerült megnyini az alábbi címet:",
-                                                            homeScreenController
-                                                                .jobList[index]
-                                                                .location,
-                                                            snackPosition:
-                                                                SnackPosition
-                                                                    .TOP,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .redAccent,
-                                                            colorText:
-                                                                Colors.white,
-                                                            borderRadius: 10,
-                                                            icon: Icon(
-                                                              CupertinoIcons
-                                                                  .map,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                          );
-                                                        } else {
-                                                          print(
-                                                              "${data[0].lat} ${data[0].lon}");
-                                                          Uri googleUrl = Uri.parse(
-                                                              'https://www.google.com/maps/search/${homeScreenController.jobList[index].location.replaceAll("/", "-")}/@${data[0].lat},${data[0].lon},100z/');
-                                                          if (await launchUrl(
-                                                              googleUrl,
-                                                              mode: LaunchMode
-                                                                  .externalApplication)) {
-                                                            print(
-                                                                "opening app");
-                                                          } else {
-                                                            throw 'Could not open the map.';
-                                                          }
-                                                        }
+                                                                    .location)
+                                                            .then((value) =>
+                                                                (!value.status)
+                                                                    ? Get
+                                                                        .snackbar(
+                                                                        value
+                                                                            .title,
+                                                                        value
+                                                                            .message,
+                                                                        backgroundColor:
+                                                                            value.backgroundColor,
+                                                                        colorText:
+                                                                            value.foregroundColor,
+                                                                        borderRadius:
+                                                                            10,
+                                                                        icon:
+                                                                            Icon(
+                                                                          CupertinoIcons
+                                                                              .map,
+                                                                          color:
+                                                                              value.foregroundColor,
+                                                                        ),
+                                                                      )
+                                                                    : null);
                                                       },
                                                       child: Padding(
                                                         padding:
@@ -478,32 +449,45 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           (BuildContext context,
                                                               int index2) {
                                                         return ListTile(
+                                                          leading: Icon(
+                                                            size: 22,
+                                                            CupertinoIcons.doc,
+                                                            color: Color(
+                                                                0xFFD3D3D3),
+                                                          ),
                                                           trailing: IconButton(
                                                               icon: Icon(
-                                                                CupertinoIcons
-                                                                    .doc,
+                                                                Icons
+                                                                    .file_download_outlined,
                                                                 size: 20,
                                                                 color: Color(
-                                                                    0xFFD3D3D3),
+                                                                    0xFF26BDD0),
                                                               ),
-                                                              onPressed:
-                                                                  () async {
-                                                                Uri googleUrl = Uri.parse(
-                                                                    homeScreenController
-                                                                        .jobList[
-                                                                            index]
-                                                                        .files[
-                                                                            index2]
-                                                                        .url);
-                                                                if (await launchUrl(
-                                                                    googleUrl,
-                                                                    mode: LaunchMode
-                                                                        .externalNonBrowserApplication)) {
-                                                                  print(
-                                                                      "opening app");
-                                                                } else {
-                                                                  throw 'Could not open the download.';
-                                                                }
+                                                              onPressed: () {
+                                                                Func.downloadDocs(homeScreenController
+                                                                            .jobList[
+                                                                                index]
+                                                                            .files[
+                                                                        index2])
+                                                                    .then((value) => (!value
+                                                                            .status)
+                                                                        ? Get
+                                                                            .snackbar(
+                                                                            value.title,
+                                                                            value.message,
+                                                                            backgroundColor:
+                                                                                value.backgroundColor,
+                                                                            colorText:
+                                                                                value.foregroundColor,
+                                                                            borderRadius:
+                                                                                10,
+                                                                            icon:
+                                                                                Icon(
+                                                                              CupertinoIcons.map,
+                                                                              color: value.foregroundColor,
+                                                                            ),
+                                                                          )
+                                                                        : null);
                                                               }),
                                                           title: Text(
                                                             homeScreenController

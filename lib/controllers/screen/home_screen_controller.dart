@@ -55,11 +55,6 @@ class HomeScreenController extends GetxController {
     }
   }
 
-  Future fetchJobs() async {
-    await _fetchJobs();
-    await Future.delayed(Duration(seconds: 2));
-  }
-
   @override
   void onInit() {
     super.onInit();
