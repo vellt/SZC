@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:szc/controllers/screen/home_screen_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -427,11 +426,117 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ])),
                                   TextButton(
                                       onPressed: () {
-                                        Get.bottomSheet(Container(
-                                          color: Colors.white,
-                                          height: 200,
-                                          child: Text("Csatolt fájlok"),
-                                        ));
+                                        print(homeScreenController
+                                            .jobList[index].files.length);
+                                        Get.bottomSheet(
+                                          Material(
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(10),
+                                              topRight: Radius.circular(10),
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 10),
+                                                  child: SizedBox(
+                                                    width: 50,
+                                                    child: Divider(
+                                                      thickness: 3,
+                                                      color: Color(0xFFDBDBDB),
+                                                    ),
+                                                  ),
+                                                ),
+                                                ListTile(
+                                                  leading: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 3),
+                                                    child: Icon(
+                                                      CupertinoIcons
+                                                          .folder_open,
+                                                      size: 19,
+                                                      color: Color(0xFF26BDD0),
+                                                    ),
+                                                  ),
+                                                  title: Text("Csatolt fájlok",
+                                                      style: TextStyle(
+                                                          color: Color(
+                                                              0xFF26BDD0))),
+                                                ),
+                                                Divider(
+                                                  thickness: 1,
+                                                  color: Color(0xFFF1F1F1),
+                                                ),
+                                                SizedBox(
+                                                  height: 200,
+                                                  child: ListView.separated(
+                                                      physics:
+                                                          const BouncingScrollPhysics(),
+                                                      itemBuilder:
+                                                          (BuildContext context,
+                                                              int index2) {
+                                                        return ListTile(
+                                                          trailing: IconButton(
+                                                              icon: Icon(
+                                                                CupertinoIcons
+                                                                    .doc,
+                                                                size: 20,
+                                                                color: Color(
+                                                                    0xFFD3D3D3),
+                                                              ),
+                                                              onPressed:
+                                                                  () async {
+                                                                Uri googleUrl = Uri.parse(
+                                                                    homeScreenController
+                                                                        .jobList[
+                                                                            index]
+                                                                        .files[
+                                                                            index2]
+                                                                        .url);
+                                                                if (await launchUrl(
+                                                                    googleUrl,
+                                                                    mode: LaunchMode
+                                                                        .externalNonBrowserApplication)) {
+                                                                  print(
+                                                                      "opening app");
+                                                                } else {
+                                                                  throw 'Could not open the download.';
+                                                                }
+                                                              }),
+                                                          title: Text(
+                                                            homeScreenController
+                                                                .jobList[index]
+                                                                .files[index2]
+                                                                .name,
+                                                            style: TextStyle(
+                                                                fontSize: 17,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w300),
+                                                          ),
+                                                        );
+                                                      },
+                                                      separatorBuilder:
+                                                          (BuildContext context,
+                                                              int index2) {
+                                                        return Divider(
+                                                          thickness: 1,
+                                                          color:
+                                                              Color(0xFFF1F1F1),
+                                                        );
+                                                      },
+                                                      itemCount:
+                                                          homeScreenController
+                                                              .jobList[index]
+                                                              .files
+                                                              .length),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        );
                                       },
                                       child: Column(children: [
                                         Icon(

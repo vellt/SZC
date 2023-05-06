@@ -42,7 +42,6 @@ dependencies:
   url_launcher: ^6.1.5
   geocoder_buddy: ^1.0.1
   clipboard: ^0.1.3
-  liquid_pull_to_refresh: ^3.0.1
 
 dev_dependencies:
   flutter_test:
