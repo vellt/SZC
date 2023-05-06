@@ -44,7 +44,7 @@ class JobDataController {
             ));
           }
           temp.add(Job(
-            id: data['_id'],
+            id: data['id'],
             title: data['title'],
             date: DateTime.parse(data['date']),
             createdAt: DateTime.parse(data['createdAt']),
@@ -52,11 +52,16 @@ class JobDataController {
             updatedAt: DateTime.parse(data['updatedAt']),
             deadline: data['deadline'],
             email: data['email'],
-            employmentType: data['employmentType'],
-            location: data['location'],
-            shortDescription: data['shortDescription'],
+            employmentType: data['employmentType'].toString().trim(),
+            location: data['location'].toString().replaceAll("sz.", "").trim(),
+            shortDescription: data['shortDescription'].toString().trim(),
             website: seleced.carrierRouteOfSchoolDomainAddress + data['slug'],
-            schoolName: _schools[selectedSchoolIndex].name,
+            SZCName: _schools[selectedSchoolIndex].name,
+            schoolName: data['instituteBody']
+                .toString()
+                .split('>')[9]
+                .replaceAll("</td", "")
+                .trim(),
             files: files,
           ));
         }

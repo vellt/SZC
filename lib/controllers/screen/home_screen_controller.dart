@@ -10,7 +10,7 @@ class HomeScreenController extends GetxController {
 
   List<bool> extendsList = [];
 
-  var closeAll = false.obs;
+  bool isLoading = true;
 
   int changeSelectedSchool(int newIndex) {
     if (newIndex != _jobDataController.selectedSchoolIndex) {
@@ -39,7 +39,8 @@ class HomeScreenController extends GetxController {
 
   List<Job> get jobList => _jobList;
 
-  void _fetchJobs() async {
+  Future _fetchJobs() async {
+    isLoading = true;
     try {
       _jobList = [];
       _jobList = await _jobDataController.getJobsOfSchool();
@@ -49,9 +50,14 @@ class HomeScreenController extends GetxController {
     } catch (e) {
       print('Hiba történt az adatok betöltése során: $e');
     } finally {
-      //isLoading.value = false; // Betöltés befejezése
+      isLoading = false;
       update();
     }
+  }
+
+  Future fetchJobs() async {
+    await _fetchJobs();
+    await Future.delayed(Duration(seconds: 2));
   }
 
   @override

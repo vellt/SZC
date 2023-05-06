@@ -15,6 +15,7 @@ class Job {
   late String _location;
   late List<JobFile> _files = [];
   late String _website;
+  late String _SZCName;
   late String _schoolName;
 
   Job({
@@ -31,6 +32,7 @@ class Job {
     required String location,
     required List<JobFile> files,
     required String website,
+    required String SZCName,
     required String schoolName,
   }) {
     _id = id;
@@ -46,6 +48,7 @@ class Job {
     _location = location;
     _files = files;
     _website = website;
+    _SZCName = SZCName;
     _schoolName = schoolName;
   }
 
@@ -75,6 +78,8 @@ class Job {
 
   String get website => _website;
 
+  String get SZCName => _SZCName;
+
   String get schoolName => _schoolName;
 
   @override
@@ -92,6 +97,7 @@ class Job {
         '\n\t\temail: $_email'
         '\n\t\tlocation: $_location'
         '\n\t\twebsite: $_website'
+        '\n\t\tSZCName: $_SZCName'
         '\n\t\tschoolName: $_schoolName'
         '\n\t\tfiles: ${_files.toString()}'
         '\n\t}';
