@@ -17,6 +17,8 @@ class Job {
   late String _website;
   late String _SZCName;
   late String _schoolName;
+  late bool _isFavorite;
+  late int _orderID;
 
   Job({
     required String id,
@@ -34,6 +36,8 @@ class Job {
     required String website,
     required String SZCName,
     required String schoolName,
+    required bool isFavorite,
+    required int orderID,
   }) {
     _id = id;
     _title = title;
@@ -50,6 +54,8 @@ class Job {
     _website = website;
     _SZCName = SZCName;
     _schoolName = schoolName;
+    _isFavorite = isFavorite;
+    _orderID = orderID;
   }
 
   String get id => _id;
@@ -82,24 +88,21 @@ class Job {
 
   String get schoolName => _schoolName;
 
+  bool get isFavorite => _isFavorite;
+
+  int get orderID => _orderID;
+
+  set isFavorite(bool value) {
+    _isFavorite = value;
+  }
+
   @override
   String toString() {
     return '\n\t{'
-        '\n\t\tid: $_id'
         '\n\t\ttitle: $_title'
-        '\n\t\tdate: ${date.year}. ${date.month}. ${date.day}.'
         '\n\t\tpublishedAt: $_publishedAt'
         '\n\t\tcreatedAt: $_createdAt'
         '\n\t\tupdatedAt: $_updatedAt'
-        '\n\t\tdeadline: $_deadline'
-        '\n\t\temploymentType: $_employmentType'
-        '\n\t\tshortDescription: $_shortDescription'
-        '\n\t\temail: $_email'
-        '\n\t\tlocation: $_location'
-        '\n\t\twebsite: $_website'
-        '\n\t\tSZCName: $_SZCName'
-        '\n\t\tschoolName: $_schoolName'
-        '\n\t\tfiles: ${_files.toString()}'
         '\n\t}';
   }
 }

@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:szc/controllers/data/job_data_controller.dart';
 import 'package:szc/models/job.dart';
+import 'package:szc/models/response_info.dart';
 import 'package:szc/models/school.dart';
+import 'package:szc/repositories/favorite_repository.dart';
 
 class HomeScreenController extends GetxController {
   JobDataController _jobDataController = JobDataController();
@@ -25,6 +28,52 @@ class HomeScreenController extends GetxController {
     return _jobDataController.currentSchool()?.name ?? "";
   }
 
+  void setExpansionTileValue(int index, bool value) {
+    extendsList[index] = value;
+    update();
+  }
+
+  // pin or unpin a job
+  Future<ResponseInfo> switchFavorite(index) async {
+    Job job = _jobList[index];
+    job.isFavorite = !job.isFavorite;
+
+    if (job.isFavorite) {
+      _jobList.removeAt(index);
+      List<Job> favoriteJobs = _jobList.where((job) => job.isFavorite).toList();
+      favoriteJobs.insert(0, job);
+      List<Job> orderedJobs = _jobList.where((job) => !job.isFavorite).toList()
+        ..sort((a, b) => a.orderID.compareTo(b.orderID));
+      orderedJobs.insertAll(0, favoriteJobs);
+      _jobList = List.from(orderedJobs);
+      // adat letárolása a lokális db-be
+      await FavoriteRepository.addFavorite(job.id);
+      update();
+      return ResponseInfo(
+          status: true,
+          title: "Sikeresen rögzítve:",
+          message: job.title,
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.greenAccent);
+    } else {
+      _jobList[index].isFavorite = false;
+      List<Job> favoriteJobs = _jobList.where((job) => job.isFavorite).toList();
+      List<Job> orderedJobs = _jobList.where((job) => !job.isFavorite).toList()
+        ..sort((a, b) => a.orderID.compareTo(b.orderID));
+      orderedJobs.insertAll(0, favoriteJobs);
+      _jobList = List.from(orderedJobs);
+      // adat felszabaditasa a lokális db-ből
+      await FavoriteRepository.removeFavorite(job.id);
+      update();
+      return ResponseInfo(
+          status: false,
+          title: "Rögzítés megszünteve:",
+          message: job.title,
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.orangeAccent);
+    }
+  }
+
   int switchSelectedSchool() {
     if (_jobDataController.selectedSchoolIndex == 0) {
       _jobDataController.selectedSchoolIndex = 1;
@@ -46,7 +95,20 @@ class HomeScreenController extends GetxController {
       _jobList = await _jobDataController.getJobsOfSchool();
       extendsList = [];
       extendsList.assignAll(List.filled(_jobList.length, false));
-      print(extendsList.toString());
+      List<dynamic> favs = FavoriteRepository.getFavorites();
+      for (String id in favs) {
+        for (Job job in _jobList) {
+          if (job.id == id) {
+            job.isFavorite = true;
+          }
+        }
+      }
+      List<Job> favoriteJobs = _jobList.where((job) => job.isFavorite).toList();
+      List<Job> orderedJobs = _jobList.where((job) => !job.isFavorite).toList()
+        ..sort((a, b) => a.orderID.compareTo(b.orderID));
+      orderedJobs.insertAll(0, favoriteJobs);
+      _jobList = List.from(orderedJobs);
+      update();
     } catch (e) {
       print('Hiba történt az adatok betöltése során: $e');
     } finally {
@@ -56,7 +118,7 @@ class HomeScreenController extends GetxController {
   }
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     _jobDataController.addSchool(
       School(
@@ -76,6 +138,7 @@ class HomeScreenController extends GetxController {
         mediaDomainAddress: "https://berettyoujfalui-szc.cms.szc.edir.hu",
       ),
     );
-    _fetchJobs();
+    await _fetchJobs();
+    await _fetchJobs();
   }
 }

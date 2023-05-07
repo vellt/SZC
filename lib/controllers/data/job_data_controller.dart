@@ -57,6 +57,8 @@ class JobDataController {
             shortDescription: data['shortDescription'].toString().trim(),
             website: seleced.carrierRouteOfSchoolDomainAddress + data['slug'],
             SZCName: _schools[selectedSchoolIndex].name,
+            isFavorite: false,
+            orderID: temp.length,
             schoolName: data['instituteBody']
                 .toString()
                 .split('>')[9]
