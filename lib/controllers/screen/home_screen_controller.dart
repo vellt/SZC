@@ -3,29 +3,31 @@ import 'package:get/get.dart';
 import 'package:szc/controllers/data/job_data_controller.dart';
 import 'package:szc/models/job.dart';
 import 'package:szc/models/response_info.dart';
-import 'package:szc/models/school.dart';
 import 'package:szc/repositories/favorite_repository.dart';
 
 class HomeScreenController extends GetxController {
   JobDataController _jobDataController = JobDataController();
 
-  List<Job> _jobList = [];
+  JobDetails _jobDetails = JobDetails.empty();
 
   List<bool> extendsList = [];
 
   bool isLoading = true;
 
   int changeSelectedSchool(int newIndex) {
+    /*
     if (newIndex != _jobDataController.selectedSchoolIndex) {
       _jobDataController.selectedSchoolIndex = newIndex;
       _fetchJobs();
       update();
     }
+
+     */
     return newIndex;
   }
 
   String getCurrentTitle() {
-    return _jobDataController.currentSchool()?.name ?? "";
+    return _jobDetails.SZCName;
   }
 
   void setExpansionTileValue(int index, bool value) {
@@ -35,17 +37,20 @@ class HomeScreenController extends GetxController {
 
   // pin or unpin a job
   Future<ResponseInfo> switchFavorite(index) async {
-    Job job = _jobList[index];
+    Job job = _jobDetails.jobs[index];
     job.isFavorite = !job.isFavorite;
 
     if (job.isFavorite) {
-      _jobList.removeAt(index);
-      List<Job> favoriteJobs = _jobList.where((job) => job.isFavorite).toList();
+      _jobDetails.jobs.removeAt(index);
+      List<Job> favoriteJobs =
+          _jobDetails.jobs.where((job) => job.isFavorite).toList();
       favoriteJobs.insert(0, job);
-      List<Job> orderedJobs = _jobList.where((job) => !job.isFavorite).toList()
+      List<Job> orderedJobs = _jobDetails.jobs
+          .where((job) => !job.isFavorite)
+          .toList()
         ..sort((a, b) => a.orderID.compareTo(b.orderID));
       orderedJobs.insertAll(0, favoriteJobs);
-      _jobList = List.from(orderedJobs);
+      _jobDetails.jobs = List.from(orderedJobs);
       // adat letárolása a lokális db-be
       await FavoriteRepository.addFavorite(job.id);
       update();
@@ -56,12 +61,15 @@ class HomeScreenController extends GetxController {
           foregroundColor: Colors.white,
           backgroundColor: Colors.greenAccent);
     } else {
-      _jobList[index].isFavorite = false;
-      List<Job> favoriteJobs = _jobList.where((job) => job.isFavorite).toList();
-      List<Job> orderedJobs = _jobList.where((job) => !job.isFavorite).toList()
+      _jobDetails.jobs[index].isFavorite = false;
+      List<Job> favoriteJobs =
+          _jobDetails.jobs.where((job) => job.isFavorite).toList();
+      List<Job> orderedJobs = _jobDetails.jobs
+          .where((job) => !job.isFavorite)
+          .toList()
         ..sort((a, b) => a.orderID.compareTo(b.orderID));
       orderedJobs.insertAll(0, favoriteJobs);
-      _jobList = List.from(orderedJobs);
+      _jobDetails.jobs = List.from(orderedJobs);
       // adat felszabaditasa a lokális db-ből
       await FavoriteRepository.removeFavorite(job.id);
       update();
@@ -75,6 +83,7 @@ class HomeScreenController extends GetxController {
   }
 
   int switchSelectedSchool() {
+    /*
     if (_jobDataController.selectedSchoolIndex == 0) {
       _jobDataController.selectedSchoolIndex = 1;
     } else if (_jobDataController.selectedSchoolIndex == 1) {
@@ -84,30 +93,35 @@ class HomeScreenController extends GetxController {
 
     update();
     return _jobDataController.selectedSchoolIndex;
+ */
+    return 1;
   }
 
-  List<Job> get jobList => _jobList;
+  List<Job> get jobList => _jobDetails.jobs;
 
   Future _fetchJobs() async {
     isLoading = true;
     try {
-      _jobList = [];
-      _jobList = await _jobDataController.getJobsOfSchool();
+      _jobDetails = JobDetails.empty();
+      _jobDetails = await _jobDataController.getJobsOfSchool();
       extendsList = [];
-      extendsList.assignAll(List.filled(_jobList.length, false));
+      extendsList.assignAll(List.filled(_jobDetails.jobs.length, false));
       List<dynamic> favs = FavoriteRepository.getFavorites();
       for (String id in favs) {
-        for (Job job in _jobList) {
+        for (Job job in _jobDetails.jobs) {
           if (job.id == id) {
             job.isFavorite = true;
           }
         }
       }
-      List<Job> favoriteJobs = _jobList.where((job) => job.isFavorite).toList();
-      List<Job> orderedJobs = _jobList.where((job) => !job.isFavorite).toList()
+      List<Job> favoriteJobs =
+          _jobDetails.jobs.where((job) => job.isFavorite).toList();
+      List<Job> orderedJobs = _jobDetails.jobs
+          .where((job) => !job.isFavorite)
+          .toList()
         ..sort((a, b) => a.orderID.compareTo(b.orderID));
       orderedJobs.insertAll(0, favoriteJobs);
-      _jobList = List.from(orderedJobs);
+      _jobDetails.jobs = List.from(orderedJobs);
       update();
     } catch (e) {
       print('Hiba történt az adatok betöltése során: $e');
@@ -120,6 +134,7 @@ class HomeScreenController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
+    /*
     _jobDataController.addSchool(
       School(
         name: "Debreceni SZC",
@@ -139,6 +154,8 @@ class HomeScreenController extends GetxController {
       ),
     );
     await _fetchJobs();
+
+     */
     await _fetchJobs();
   }
 }

@@ -4,6 +4,9 @@ import 'package:get_storage/get_storage.dart';
 import 'package:szc/screens/home_screen.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  print("hello: ");
   await GetStorage.init();
   runApp(const MyApp());
 }
