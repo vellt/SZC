@@ -103,7 +103,7 @@ class HomeScreenController extends GetxController {
     isLoading = true;
     try {
       _jobDetails = JobDetails.empty();
-      _jobDetails = await _jobDataController.getJobsOfSchool();
+      _jobDetails = await _jobDataController.fetchJobs();
       extendsList = [];
       extendsList.assignAll(List.filled(_jobDetails.jobs.length, false));
       List<dynamic> favs = FavoriteRepository.getFavorites();

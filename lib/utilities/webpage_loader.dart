@@ -25,6 +25,8 @@ abstract class WebPageLoader {
       }
       return true;
     });
+    controller.clearLocalStorage();
+    controller.clearCache();
     return schoolData;
   }
 }

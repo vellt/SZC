@@ -1,5 +1,5 @@
 import 'package:szc/controllers/data/school_data_controller.dart';
-import 'package:szc/utilities/mycontroller.dart';
+import 'package:szc/utilities/webpage_loader.dart';
 import 'package:szc/models/job.dart';
 import 'package:szc/models/job_file.dart';
 import 'package:szc/utilities/networking.dart';
@@ -7,7 +7,7 @@ import 'dart:io';
 import 'dart:convert';
 
 class JobDataController {
-  Future<JobDetails> getJobsOfSchool() async {
+  Future<JobDetails> fetchJobs() async {
     List<Job> temp = [];
     String school = getCurrentSchool();
 
@@ -72,6 +72,5 @@ class JobDetails {
   String SZCName = "";
   List<Job> jobs = [];
   JobDetails(this.SZCName, this.jobs);
-
   JobDetails.empty();
 }
