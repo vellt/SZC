@@ -3,14 +3,15 @@ import 'package:get/get.dart';
 import 'package:szc/controllers/data/job_data_controller.dart';
 import 'package:szc/models/job.dart';
 import 'package:szc/models/response_info.dart';
-import 'package:szc/repositories/favorite_repository.dart';
+import 'package:szc/database/favorite_database.dart';
 
 class HomeScreenController extends GetxController {
-  JobDataController _jobDataController = JobDataController();
+  final JobDataController _jobDataController = JobDataController();
 
   JobDetails _jobDetails = JobDetails.empty();
 
-  List<bool> extendsList = [];
+  List<bool> extendsList =
+      []; // ahhoz kell ha vált akkor csukva legyenek az extendsbuttionok
 
   bool isLoading = true;
 
@@ -52,7 +53,7 @@ class HomeScreenController extends GetxController {
       orderedJobs.insertAll(0, favoriteJobs);
       _jobDetails.jobs = List.from(orderedJobs);
       // adat letárolása a lokális db-be
-      await FavoriteRepository.addFavorite(job.id);
+      Get.find<FavoriteDatabase>().addFavorite(job.id);
       update();
       return ResponseInfo(
           status: true,
@@ -71,7 +72,7 @@ class HomeScreenController extends GetxController {
       orderedJobs.insertAll(0, favoriteJobs);
       _jobDetails.jobs = List.from(orderedJobs);
       // adat felszabaditasa a lokális db-ből
-      await FavoriteRepository.removeFavorite(job.id);
+      Get.find<FavoriteDatabase>().removeFavorite(job.id);
       update();
       return ResponseInfo(
           status: false,
@@ -83,6 +84,8 @@ class HomeScreenController extends GetxController {
   }
 
   int switchSelectedSchool() {
+    _jobDataController.schoolIndex = 1;
+    reload();
     /*
     if (_jobDataController.selectedSchoolIndex == 0) {
       _jobDataController.selectedSchoolIndex = 1;
@@ -99,63 +102,48 @@ class HomeScreenController extends GetxController {
 
   List<Job> get jobList => _jobDetails.jobs;
 
-  Future _fetchJobs() async {
-    isLoading = true;
+  Future reload() async {
     try {
-      _jobDetails = JobDetails.empty();
-      _jobDetails = await _jobDataController.fetchJobs();
-      extendsList = [];
-      extendsList.assignAll(List.filled(_jobDetails.jobs.length, false));
-      List<dynamic> favs = FavoriteRepository.getFavorites();
-      for (String id in favs) {
-        for (Job job in _jobDetails.jobs) {
-          if (job.id == id) {
-            job.isFavorite = true;
-          }
-        }
-      }
-      List<Job> favoriteJobs =
-          _jobDetails.jobs.where((job) => job.isFavorite).toList();
-      List<Job> orderedJobs = _jobDetails.jobs
-          .where((job) => !job.isFavorite)
-          .toList()
-        ..sort((a, b) => a.orderID.compareTo(b.orderID));
-      orderedJobs.insertAll(0, favoriteJobs);
-      _jobDetails.jobs = List.from(orderedJobs);
+      print("@@@@@@@@@@@@@@@@@@@");
+      isLoading = true;
       update();
-    } catch (e) {
-      print('Hiba történt az adatok betöltése során: $e');
-    } finally {
+      _jobDetails = JobDetails.empty();
+      _jobDetails = await _jobDataController.fetchJobDetails();
+      // extendsList=[]; ez lehet hiba később h kiszedtem
+      extendsList.assignAll(List.filled(_jobDetails.jobs.length, false));
+      _jobDetails.jobs = getPinnedElements(_jobDetails.jobs);
       isLoading = false;
+    } catch (e) {
+      print("reload hiba: $e");
+    } finally {
       update();
     }
+  }
+
+  List<Job> getPinnedElements(List<Job> jobsForOrdring) {
+    List<dynamic> favs = Get.find<FavoriteDatabase>().getFavorites();
+    print("MMMM ${favs.length}");
+    for (String favId in favs) {
+      for (Job job in _jobDetails.jobs) {
+        if (job.id == favId) {
+          job.isFavorite = true;
+          print(job.title);
+        }
+      }
+    }
+    List<Job> favoriteJobs =
+        _jobDetails.jobs.where((job) => job.isFavorite).toList();
+    List<Job> orderedJobs = _jobDetails.jobs
+        .where((job) => !job.isFavorite)
+        .toList()
+      ..sort((a, b) => a.orderID.compareTo(b.orderID));
+    orderedJobs.insertAll(0, favoriteJobs);
+    return orderedJobs;
   }
 
   @override
   void onInit() async {
     super.onInit();
-    /*
-    _jobDataController.addSchool(
-      School(
-        name: "Debreceni SZC",
-        schoolDomainAddress: "https://www.dszc.hu",
-        careerRouteOfSchoolDomainAddress:
-            "/_next/data/v-WydHyHx525vK02lrDwf/karrier.json",
-        mediaDomainAddress: "https://cms.debreceni.szc.edir.hu",
-      ),
-    );
-    _jobDataController.addSchool(
-      School(
-        name: "Berettyoujfalui SZC",
-        schoolDomainAddress: "https://berettyoujfaluiszc.hu",
-        careerRouteOfSchoolDomainAddress:
-            "/_next/data/r1JCPBEcCQVOGpyX5HtPz/karrier.json",
-        mediaDomainAddress: "https://berettyoujfalui-szc.cms.szc.edir.hu",
-      ),
-    );
-    await _fetchJobs();
-
-     */
-    await _fetchJobs();
+    await reload();
   }
 }

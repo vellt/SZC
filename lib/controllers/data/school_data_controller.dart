@@ -7,3 +7,7 @@ int selectedSchool = 0;
 String getCurrentSchool() {
   return schools[selectedSchool];
 }
+
+String getNameOfSchool(int index) {
+  return schools[index];
+}
