@@ -16,15 +16,23 @@ class SZCWebPageLoader {
               .runJavaScriptReturningResult(constants.buildIdJs);
           Object szcName = await controller
               .runJavaScriptReturningResult(constants.szcNameJs);
+          Object backend = await controller
+              .runJavaScriptReturningResult(constants.backendBaseUrlJs);
           await controller.clearCache();
           await controller.clearLocalStorage();
           SZCFetchingResponse sd = (buildId.toString() != "")
               ? SZCFetchingResponse.success(
                   buildId: buildId.toString().replaceAll('"', '').trim(),
-                  SZCName: szcName.toString().replaceAll('"', '').trim())
+                  SZCName: szcName.toString().replaceAll('"', '').trim(),
+                  backendBaseUrl: backend
+                      .toString()
+                      .replaceAll('"', '')
+                      .replaceAll(".hu/", ".hu")
+                      .trim()
+                      .split('uploads')[0])
               : SZCFetchingResponse.error();
           print(
-              "### SZCWebPageLoader finished (id: ${sd.buildId}, name: ${sd.SZCName})");
+              "### SZCWebPageLoader finished (id: ${sd.buildId}, name: ${sd.SZCName}), backend: ${sd.backendBaseUrl}");
           if (!completer.isCompleted) completer.complete(sd);
         },
       ),

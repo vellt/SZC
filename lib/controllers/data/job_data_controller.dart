@@ -27,7 +27,8 @@ class JobDataController {
               name: innerData['name'],
               ext: innerData['ext'],
               size: innerData['size'],
-              url: szcUrl, //.mediaDomainAddress + innerData['url'],
+              url:
+                  "${szcData.backendBaseUrl}${innerData['url']}", //.mediaDomainAddress + ,
             ));
           }
           jobs.add(Job(
