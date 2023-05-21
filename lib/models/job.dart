@@ -18,7 +18,7 @@ class Job {
   late String _SZCName;
   late String _schoolName;
   late bool _isFavorite;
-  late int _orderID;
+  late int _sortID;
 
   Job({
     required String id,
@@ -37,7 +37,7 @@ class Job {
     required String SZCName,
     required String schoolName,
     required bool isFavorite,
-    required int orderID,
+    required int sortID,
   }) {
     _id = id;
     _title = title;
@@ -55,7 +55,7 @@ class Job {
     _SZCName = SZCName;
     _schoolName = schoolName;
     _isFavorite = isFavorite;
-    _orderID = orderID;
+    _sortID = sortID;
   }
 
   String get id => _id;
@@ -90,7 +90,7 @@ class Job {
 
   bool get isFavorite => _isFavorite;
 
-  int get orderID => _orderID;
+  int get sortID => _sortID;
 
   set isFavorite(bool value) {
     _isFavorite = value;

@@ -1,21 +1,21 @@
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:szc/models/job_file.dart';
-import 'package:szc/models/response_info.dart';
+import 'package:szc/models/responses/view_response_info.dart';
 import 'package:geocoder_buddy/geocoder_buddy.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class Func {
-  static Future<ResponseInfo> openWebsite(String url) async {
+class ViewActiveFunctions {
+  static Future<ViewResponseInfo> openWebsite(String url) async {
     return await launchUrl(Uri.parse(url)).then((value) => (value)
-        ? ResponseInfo(
+        ? ViewResponseInfo(
             status: true,
             title: 'Sikeresen megnyitva az oldal:',
             message: url,
             foregroundColor: Colors.white,
             backgroundColor: Colors.greenAccent,
           )
-        : ResponseInfo(
+        : ViewResponseInfo(
             status: false,
             title: 'Nem lehet megnyitni az oldalt:',
             message: url,
@@ -23,9 +23,9 @@ class Func {
             backgroundColor: Colors.redAccent));
   }
 
-  static Future<ResponseInfo> copyTextToTheClipBoard(String text) async {
+  static Future<ViewResponseInfo> copyTextToTheClipBoard(String text) async {
     await FlutterClipboard.copy(text);
-    return ResponseInfo(
+    return ViewResponseInfo(
       status: true,
       title: 'Sikeresen kimásolva:',
       message: text,
@@ -34,10 +34,10 @@ class Func {
     );
   }
 
-  static Future<ResponseInfo> downloadDocs(JobFile file) async {
+  static Future<ViewResponseInfo> downloadDocs(JobFile file) async {
     Uri googleUrl = Uri.parse(file.url);
     if (await launchUrl(googleUrl, mode: LaunchMode.externalApplication)) {
-      return ResponseInfo(
+      return ViewResponseInfo(
         status: true,
         title: 'A letöltés elindítva',
         message: file.name,
@@ -45,7 +45,7 @@ class Func {
         foregroundColor: Colors.white,
       );
     } else {
-      return ResponseInfo(
+      return ViewResponseInfo(
         status: false,
         title: "Nem sikerült elindítani a letöltést:",
         message: file.name,
@@ -55,7 +55,7 @@ class Func {
     }
   }
 
-  static Future<ResponseInfo> writeMail(
+  static Future<ViewResponseInfo> writeMail(
     String emailAddress,
     String title,
   ) async {
@@ -68,7 +68,7 @@ class Func {
         "\nÜzenet: ");
     Uri mail = Uri.parse("mailto:$email?subject=$subject&body=$body");
     if (await launchUrl(mail, mode: LaunchMode.externalApplication)) {
-      return ResponseInfo(
+      return ViewResponseInfo(
         status: true,
         title: "Email",
         message: "Sikerült megnyini",
@@ -76,7 +76,7 @@ class Func {
         foregroundColor: Colors.white,
       );
     } else {
-      return ResponseInfo(
+      return ViewResponseInfo(
         status: false,
         title: "Hiba történt",
         message: "Nem sikerült megnyini az emailt",
@@ -86,10 +86,10 @@ class Func {
     }
   }
 
-  static Future<ResponseInfo> openMap(String location) async {
+  static Future<ViewResponseInfo> openMap(String location) async {
     List<GBSearchData> data = await GeocoderBuddy.query(location);
     if (data.isEmpty) {
-      return ResponseInfo(
+      return ViewResponseInfo(
         status: false,
         title: "Nem sikerült megnyini az alábbi címet:",
         message: location,
@@ -100,7 +100,7 @@ class Func {
       Uri googleUrl = Uri.parse(
           'https://www.google.com/maps/search/${location.replaceAll("/", "-")}/@${data[0].lat},${data[0].lon},100z/');
       if (!await launchUrl(googleUrl, mode: LaunchMode.externalApplication)) {
-        return ResponseInfo(
+        return ViewResponseInfo(
           status: false,
           title: "Nem sikerült megnyini az alábbi címet:",
           message: location,
@@ -108,7 +108,7 @@ class Func {
           backgroundColor: Colors.redAccent,
         );
       }
-      return ResponseInfo(
+      return ViewResponseInfo(
         status: true,
         title: "Sikerült megnyini az alábbi címet:",
         message: location,

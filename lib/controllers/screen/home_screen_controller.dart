@@ -2,79 +2,69 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:szc/controllers/data/job_data_controller.dart';
 import 'package:szc/models/job.dart';
-import 'package:szc/models/response_info.dart';
+import 'package:szc/models/responses/view_response_info.dart';
 import 'package:szc/database/favorite_database.dart';
+import 'package:szc/models/responses/job_fetching_response.dart';
 
 class HomeScreenController extends GetxController {
   final JobDataController _jobDataController = JobDataController();
 
-  JobDetails _jobDetails = JobDetails.empty();
+  JobFetchingResponse _fetchedJobData = JobFetchingResponse.empty();
 
-  List<bool> extendsList =
-      []; // ahhoz kell ha vált akkor csukva legyenek az extendsbuttionok
+  // ahhoz kell ha vált akkor csukva legyenek az extendsbuttionok
+  List<bool> extendsList = [];
 
+  // inidklátorhoz kell
   bool isLoading = true;
 
-  int changeSelectedSchool(int newIndex) {
-    /*
-    if (newIndex != _jobDataController.selectedSchoolIndex) {
-      _jobDataController.selectedSchoolIndex = newIndex;
-      _fetchJobs();
-      update();
-    }
-
-     */
-    return newIndex;
-  }
-
   String getCurrentTitle() {
-    return _jobDetails.SZCName;
+    return _fetchedJobData.SZCName;
   }
 
-  void setExpansionTileValue(int index, bool value) {
-    extendsList[index] = value;
+  void markTheJobThatHasBeenExtendedOrClosed(int index, bool value) {
+    extendsList[index] = value; // true==expanded, false==closed
     update();
   }
 
   // pin or unpin a job
-  Future<ResponseInfo> switchFavorite(index) async {
-    Job job = _jobDetails.jobs[index];
+  Future<ViewResponseInfo> jobPinOrUnpin(index) async {
+    Job job = _fetchedJobData.jobs[index];
     job.isFavorite = !job.isFavorite;
 
     if (job.isFavorite) {
-      _jobDetails.jobs.removeAt(index);
+      _fetchedJobData.jobs.removeAt(index);
       List<Job> favoriteJobs =
-          _jobDetails.jobs.where((job) => job.isFavorite).toList();
+          _fetchedJobData.jobs.where((job) => job.isFavorite).toList();
       favoriteJobs.insert(0, job);
-      List<Job> orderedJobs = _jobDetails.jobs
+      List<Job> orderedJobs = _fetchedJobData.jobs
           .where((job) => !job.isFavorite)
           .toList()
-        ..sort((a, b) => a.orderID.compareTo(b.orderID));
+        ..sort((a, b) => a.sortID.compareTo(b.sortID));
       orderedJobs.insertAll(0, favoriteJobs);
-      _jobDetails.jobs = List.from(orderedJobs);
+      _fetchedJobData.jobs = List.from(orderedJobs);
       // adat letárolása a lokális db-be
       Get.find<FavoriteDatabase>().addFavorite(job.id);
       update();
-      return ResponseInfo(
+      return ViewResponseInfo(
           status: true,
           title: "Sikeresen rögzítve:",
           message: job.title,
           foregroundColor: Colors.white,
           backgroundColor: Colors.greenAccent);
     } else {
-      _jobDetails.jobs[index].isFavorite = false;
+      _fetchedJobData.jobs[index].isFavorite = false;
       List<Job> favoriteJobs =
-          _jobDetails.jobs.where((job) => job.isFavorite).toList();
-      List<Job> orderedJobs = _jobDetails.jobs
+          _fetchedJobData.jobs.where((job) => job.isFavorite).toList();
+      List<Job> orderedJobs = _fetchedJobData.jobs
           .where((job) => !job.isFavorite)
           .toList()
-        ..sort((a, b) => a.orderID.compareTo(b.orderID));
+        ..sort((a, b) => a.sortID.compareTo(b.sortID));
       orderedJobs.insertAll(0, favoriteJobs);
-      _jobDetails.jobs = List.from(orderedJobs);
+      _fetchedJobData.jobs = List.from(orderedJobs);
       // adat felszabaditasa a lokális db-ből
       Get.find<FavoriteDatabase>().removeFavorite(job.id);
       update();
-      return ResponseInfo(
+      return ViewResponseInfo(
           status: false,
           title: "Rögzítés megszünteve:",
           message: job.title,
@@ -83,62 +73,63 @@ class HomeScreenController extends GetxController {
     }
   }
 
+  // vált a két szc között
   int switchSelectedSchool() {
-    _jobDataController.schoolIndex = 1;
+    if (_jobDataController.schoolIndex == 0) {
+      _jobDataController.schoolIndex = 1;
+    } else if (_jobDataController.schoolIndex == 1) {
+      _jobDataController.schoolIndex = 0;
+    }
     reload();
-    /*
-    if (_jobDataController.selectedSchoolIndex == 0) {
-      _jobDataController.selectedSchoolIndex = 1;
-    } else if (_jobDataController.selectedSchoolIndex == 1) {
-      _jobDataController.selectedSchoolIndex = 0;
-    }
-    _fetchJobs();
+    return _jobDataController.schoolIndex;
+  }
 
+  // visszadja az aktuális job listát
+  List<Job> get jobList => _fetchedJobData.jobs;
+
+  // egy adat lekérését végzi, kell majd egy olyan mi az összes a listában lévő iskola adatát összue gyűjti
+  Future<ViewResponseInfo> reload() async {
+    isLoading = true;
     update();
-    return _jobDataController.selectedSchoolIndex;
- */
-    return 1;
+    _fetchedJobData = JobFetchingResponse.empty();
+    _fetchedJobData = await _jobDataController.fetchJobDetails();
+    extendsList.assignAll(List.filled(_fetchedJobData.jobs.length, false));
+    _fetchedJobData.jobs = getPinnedElements(_fetchedJobData.jobs);
+    isLoading = false;
+    update();
+    return (_fetchedJobData.networkStatus)
+        ? ViewResponseInfo(
+            status: true,
+            title: 'Az adatok sikeresen élekérve',
+            message: 'További teendője nincs',
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.greenAccent,
+          )
+        : ViewResponseInfo(
+            status: false,
+            title: 'Sikertelen adatlekérés',
+            message:
+                'Kérem ellenőrízze az internetkapcsolatát, majd próbálja újra',
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.redAccent);
   }
 
-  List<Job> get jobList => _jobDetails.jobs;
-
-  Future reload() async {
-    try {
-      print("@@@@@@@@@@@@@@@@@@@");
-      isLoading = true;
-      update();
-      _jobDetails = JobDetails.empty();
-      _jobDetails = await _jobDataController.fetchJobDetails();
-      // extendsList=[]; ez lehet hiba később h kiszedtem
-      extendsList.assignAll(List.filled(_jobDetails.jobs.length, false));
-      _jobDetails.jobs = getPinnedElements(_jobDetails.jobs);
-      isLoading = false;
-    } catch (e) {
-      print("reload hiba: $e");
-    } finally {
-      update();
-    }
-  }
-
-  List<Job> getPinnedElements(List<Job> jobsForOrdring) {
+  // visszadja hogy az adott szc-ben milyen pinned job-jaid vannak
+  List<Job> getPinnedElements(List<Job> jobs) {
     List<dynamic> favs = Get.find<FavoriteDatabase>().getFavorites();
-    print("MMMM ${favs.length}");
     for (String favId in favs) {
-      for (Job job in _jobDetails.jobs) {
+      for (Job job in jobs) {
         if (job.id == favId) {
           job.isFavorite = true;
           print(job.title);
         }
       }
     }
-    List<Job> favoriteJobs =
-        _jobDetails.jobs.where((job) => job.isFavorite).toList();
-    List<Job> orderedJobs = _jobDetails.jobs
-        .where((job) => !job.isFavorite)
-        .toList()
-      ..sort((a, b) => a.orderID.compareTo(b.orderID));
-    orderedJobs.insertAll(0, favoriteJobs);
-    return orderedJobs;
+    List<Job> favoriteJobs = jobs.where((job) => job.isFavorite).toList();
+    List<Job> sortedJobDataList = jobs.where((job) => !job.isFavorite).toList()
+      ..sort((a, b) => a.sortID.compareTo(b.sortID));
+    sortedJobDataList.insertAll(0, favoriteJobs);
+    return sortedJobDataList;
   }
 
   @override

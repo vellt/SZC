@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'package:szc/models/responses/szc_fetching_response.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:szc/utilities/constants.dart' as constants;
 
-class WebPageLoader {
+class SZCWebPageLoader {
   final controller = WebViewController();
-  Future<SchoolData> getData(String url) async {
-    Completer<SchoolData> completer = Completer<SchoolData>();
+  Future<SZCFetchingResponse> fetchDataFromURL(String url) async {
+    Completer<SZCFetchingResponse> completer = Completer<SZCFetchingResponse>();
     await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
     await controller.setNavigationDelegate(
       NavigationDelegate(
@@ -15,10 +16,15 @@ class WebPageLoader {
               .runJavaScriptReturningResult(constants.buildIdJs);
           Object szcName = await controller
               .runJavaScriptReturningResult(constants.szcNameJs);
-          SchoolData sd = SchoolData.all(
-              buildId.toString().replaceAll('"', '').trim(),
-              szcName.toString().replaceAll('"', '').trim());
-          print("### finished (id: ${sd.buildId}, name: ${sd.SZCName})");
+          await controller.clearCache();
+          await controller.clearLocalStorage();
+          SZCFetchingResponse sd = (buildId.toString() != "")
+              ? SZCFetchingResponse.success(
+                  buildId: buildId.toString().replaceAll('"', '').trim(),
+                  SZCName: szcName.toString().replaceAll('"', '').trim())
+              : SZCFetchingResponse.error();
+          print(
+              "### SZCWebPageLoader finished (id: ${sd.buildId}, name: ${sd.SZCName})");
           if (!completer.isCompleted) completer.complete(sd);
         },
       ),
@@ -26,14 +32,6 @@ class WebPageLoader {
     await controller.loadRequest(Uri.parse(url));
     return completer.future;
   }
-}
-
-class SchoolData {
-  String buildId = "";
-  String SZCName = "";
-
-  SchoolData.all(this.buildId, this.SZCName);
-  SchoolData.empty();
 }
 
 /*

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:szc/controllers/screen/home_screen_controller.dart';
-import 'package:szc/utilities/func.dart';
+import 'package:szc/utilities/view_active_functions.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: GestureDetector(
                           onLongPressStart: (_) {
                             homeScreenController
-                                .switchFavorite(index)
+                                .jobPinOrUnpin(index)
                                 .then((value) => (value.status)
                                     ? Get.snackbar(
                                         value.title,
@@ -76,8 +76,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             initiallyExpanded:
                                 homeScreenController.extendsList[index],
                             onExpansionChanged: (bool value) {
-                              homeScreenController.setExpansionTileValue(
-                                  index, value);
+                              homeScreenController
+                                  .markTheJobThatHasBeenExtendedOrClosed(
+                                      index, value);
                             },
                             tilePadding:
                                 EdgeInsets.only(top: 5, left: 16, right: 16),
@@ -135,8 +136,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   width: 20,
                                   child: IconButton(
                                     onPressed: () {
-                                      Func.openWebsite(homeScreenController
-                                              .jobList[index].website)
+                                      ViewActiveFunctions.openWebsite(
+                                              homeScreenController
+                                                  .jobList[index].website)
                                           .then((value) => (!value.status)
                                               ? Get.snackbar(
                                                   value.title,
@@ -227,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   TextButton(
                                       onPressed: () {
-                                        Func.writeMail(
+                                        ViewActiveFunctions.writeMail(
                                                 homeScreenController
                                                     .jobList[index].email,
                                                 homeScreenController
@@ -327,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               Color(0xFFD3D3D3),
                                                         ),
                                                         onPressed: () {
-                                                          Func.copyTextToTheClipBoard(
+                                                          ViewActiveFunctions.copyTextToTheClipBoard(
                                                                   homeScreenController
                                                                       .jobList[
                                                                           index]
@@ -384,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             Color(0xFF26BDD0),
                                                       ),
                                                       onPressed: () {
-                                                        Func.openMap(
+                                                        ViewActiveFunctions.openMap(
                                                                 homeScreenController
                                                                     .jobList[
                                                                         index]
@@ -511,7 +513,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     0xFF26BDD0),
                                                               ),
                                                               onPressed: () {
-                                                                Func.downloadDocs(homeScreenController
+                                                                ViewActiveFunctions.downloadDocs(homeScreenController
                                                                             .jobList[
                                                                                 index]
                                                                             .files[

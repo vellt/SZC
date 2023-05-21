@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class ResponseInfo {
+class ViewResponseInfo {
   bool status;
   String title;
   String message;
   Color foregroundColor;
   Color backgroundColor;
-  ResponseInfo({
+  ViewResponseInfo({
     required this.status,
     required this.title,
     required this.message,
