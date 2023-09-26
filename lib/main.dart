@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:szc/database/favorite_database.dart';
 import 'package:szc/screens/home_screen.dart';
 

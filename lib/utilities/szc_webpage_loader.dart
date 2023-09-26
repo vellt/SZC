@@ -20,7 +20,7 @@ class SZCWebPageLoader {
               .runJavaScriptReturningResult(constants.backendBaseUrlJs);
           await controller.clearCache();
           await controller.clearLocalStorage();
-          SZCFetchingResponse sd = (buildId.toString() != "")
+          SZCFetchingResponse sd = (buildId != "")
               ? SZCFetchingResponse.success(
                   buildId: buildId.toString().replaceAll('"', '').trim(),
                   SZCName: szcName.toString().replaceAll('"', '').trim(),

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:szc/controllers/screen/home_screen_controller.dart';
 import 'package:szc/utilities/view_active_functions.dart';
+import 'package:toast/toast.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -18,6 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return GetBuilder<HomeScreenController>(
         init: homeScreenController,
         builder: (_) {
@@ -48,29 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onLongPressStart: (_) {
                             homeScreenController
                                 .jobPinOrUnpin(index)
-                                .then((value) => (value.status)
-                                    ? Get.snackbar(
-                                        value.title,
-                                        value.message,
-                                        backgroundColor: value.backgroundColor,
-                                        colorText: value.foregroundColor,
-                                        borderRadius: 10,
-                                        icon: Icon(
-                                          CupertinoIcons.pin,
-                                          color: value.foregroundColor,
-                                        ),
-                                      )
-                                    : Get.snackbar(
-                                        value.title,
-                                        value.message,
-                                        backgroundColor: value.backgroundColor,
-                                        colorText: value.foregroundColor,
-                                        borderRadius: 10,
-                                        icon: Icon(
-                                          CupertinoIcons.pin_slash,
-                                          color: value.foregroundColor,
-                                        ),
-                                      ));
+                                .then((value) => Toast.show(value.title));
                           },
                           child: ExpansionTile(
                             initiallyExpanded:
@@ -185,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Builder(builder: (context) {
                                     var date = DateFormat('yyyy. MM. dd.')
                                         .format(homeScreenController
-                                            .jobList[index].date);
+                                            .jobList[index].createdAt);
                                     return Text(
                                       "📅  $date",
                                       style: TextStyle(
@@ -604,9 +584,9 @@ class _HomeScreenState extends State<HomeScreen> {
             floatingActionButton: FloatingActionButton(
               backgroundColor: Color(0xFF26BDD0),
               onPressed: () {
-                homeScreenController.switchSelectedSchool();
+                homeScreenController.netxSchool();
               },
-              child: Icon(CupertinoIcons.arrow_2_circlepath),
+              child: Icon(Icons.arrow_forward_ios_rounded),
             ),
           );
         });

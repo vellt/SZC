@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:szc/controllers/data/job_data_controller.dart';
+import 'package:szc/controllers/data/school_data_controller.dart';
 import 'package:szc/models/job.dart';
 import 'package:szc/models/responses/view_response_info.dart';
 import 'package:szc/database/favorite_database.dart';
@@ -47,7 +48,7 @@ class HomeScreenController extends GetxController {
       update();
       return ViewResponseInfo(
           status: true,
-          title: "Sikeresen rögzítve:",
+          title: "Sikeresen rögzítve",
           message: job.title,
           foregroundColor: Colors.white,
           backgroundColor: Colors.greenAccent);
@@ -66,7 +67,7 @@ class HomeScreenController extends GetxController {
       update();
       return ViewResponseInfo(
           status: false,
-          title: "Rögzítés megszünteve:",
+          title: "Rögzítés megszünteve",
           message: job.title,
           foregroundColor: Colors.white,
           backgroundColor: Colors.orangeAccent);
@@ -74,10 +75,10 @@ class HomeScreenController extends GetxController {
   }
 
   // vált a két szc között
-  int switchSelectedSchool() {
-    if (_jobDataController.schoolIndex == 0) {
-      _jobDataController.schoolIndex = 1;
-    } else if (_jobDataController.schoolIndex == 1) {
+  int netxSchool() {
+    if (_jobDataController.schoolIndex < schools.length - 1) {
+      _jobDataController.schoolIndex++;
+    } else {
       _jobDataController.schoolIndex = 0;
     }
     reload();
@@ -111,7 +112,8 @@ class HomeScreenController extends GetxController {
             message:
                 'Kérem ellenőrízze az internetkapcsolatát, majd próbálja újra',
             foregroundColor: Colors.white,
-            backgroundColor: Colors.redAccent);
+            backgroundColor: Colors.redAccent,
+          );
   }
 
   // visszadja hogy az adott szc-ben milyen pinned job-jaid vannak

@@ -1,6 +1,8 @@
 final List<String> schools = [
+  'https://www.kisvardaiszc.hu/',
+  'https://www.nyszc.hu/',
   'https://www.dszc.hu/',
-  'https://www.berettyoujfaluiszc.hu/',
+  'https://berettyoujfaluiszc.hu/',
 ];
 int selectedSchool = 0;
 

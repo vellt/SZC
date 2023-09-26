@@ -4,7 +4,6 @@ class Job {
   late String
       _id; // ezeket mentem le lokálisan, ha egy újat betölt, akkor értesítést kuld
   late String _title;
-  late DateTime _date;
   late DateTime _publishedAt;
   late DateTime _createdAt;
   late DateTime _updatedAt;
@@ -23,7 +22,6 @@ class Job {
   Job({
     required String id,
     required String title,
-    required DateTime date,
     required DateTime publishedAt,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -41,7 +39,6 @@ class Job {
   }) {
     _id = id;
     _title = title;
-    _date = date;
     _publishedAt = publishedAt;
     _createdAt = createdAt;
     _updatedAt = updatedAt;
@@ -71,8 +68,6 @@ class Job {
   String get employmentType => _employmentType;
 
   String get deadline => _deadline;
-
-  DateTime get date => _date;
 
   DateTime get createdAt => _createdAt;
 

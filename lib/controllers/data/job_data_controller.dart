@@ -18,8 +18,11 @@ class JobDataController {
     if (szcData.networkStatus) {
       NetworkHelper networkHelper = NetworkHelper(
           Uri.parse("${szcUrl}_next/data/${szcData.buildId}/karrier.json"));
+      NetworkHelper networkHelper2 = NetworkHelper(Uri.parse(
+          "${szcUrl}_next/data/${szcData.buildId}/alapadatok/bemutatkozas.json"));
       var response = await networkHelper.getRequest();
-      if (response != null) {
+      var response2 = await networkHelper2.getRequest();
+      if (response != null && response2 != null) {
         for (var data in response['pageProps']['jobs']) {
           List<JobFile> files = [];
           for (var innerData in data['files']) {
@@ -31,15 +34,15 @@ class JobDataController {
                   "${szcData.backendBaseUrl}${innerData['url']}", //.mediaDomainAddress + ,
             ));
           }
+
           jobs.add(Job(
             id: data['id'],
             title: data['title'],
-            date: DateTime.parse(data['date']),
             createdAt: DateTime.parse(data['createdAt']),
             publishedAt: DateTime.parse(data['published_at']),
             updatedAt: DateTime.parse(data['updatedAt']),
             deadline: data['deadline'],
-            email: data['email'],
+            email: data['email'] ?? 'nan',
             employmentType: data['employmentType'].toString().trim(),
             location: data['location'].toString().replaceAll("sz.", "").trim(),
             shortDescription: data['shortDescription'].toString().trim(),
@@ -47,11 +50,8 @@ class JobDataController {
             SZCName: szcData.SZCName,
             isFavorite: false,
             sortID: jobs.length,
-            schoolName: data['instituteBody']
-                .toString()
-                .split('>')[9]
-                .replaceAll("</td", "")
-                .trim(),
+            schoolName: response2['pageProps']['commonData']['configData']
+                ['SZCname'],
             files: files,
           ));
         }
